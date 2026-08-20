@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>IP 格式化工具</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+
+            font-family:
+                "Microsoft YaHei",
+                Arial,
+                sans-serif;
+
+            background: #f5f7fb;
+
+            color: #333;
+        }
+
+
+        /* =========================
+           页面容器
+        ========================= */
+
+        .container {
+            width: 95%;
+            max-width: 1300px;
+
+            margin: 40px auto;
+        }
+
+
+        /* =========================
+           左右区域
+        ========================= */
+
+        .content {
+            display: flex;
+
+            gap: 20px;
+        }
+
+
+        /* =========================
+           面板
+        ========================= */
+
+        .panel {
+            flex: 1;
+
+            background: #ffffff;
+
+            border-radius: 12px;
+
+            padding: 20px;
+
+            box-shadow:
+                0 4px 20px
+                rgba(0, 0, 0, 0.08);
+        }
+
+
+        /* =========================
+           面板标题
+        ========================= */
+
+        .panel-header {
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            margin-bottom: 15px;
+        }
+
+
+        .panel-header h2 {
+            margin: 0;
+
+            font-size: 18px;
+
+            font-weight: 600;
+        }
+
+
+        /* =========================
+           IP数量
+        ========================= */
+
+        .count {
+            font-size: 14px;
+
+            color: #409eff;
+        }
+
+
+        /* =========================
+           文本框
+        ========================= */
+
+        textarea {
+
+            width: 100%;
+
+            height: 500px;
+
+            padding: 16px;
+
+            border:
+                1px solid #dcdfe6;
+
+            border-radius: 8px;
+
+            resize: vertical;
+
+            outline: none;
+
+            font-size: 15px;
+
+            line-height: 1.8;
+
+            font-family:
+                Consolas,
+                "Microsoft YaHei",
+                monospace;
+
+            transition: 0.2s;
+        }
+
+
+        textarea:focus {
+
+            border-color: #409eff;
+
+            box-shadow:
+                0 0 0 2px
+                rgba(64, 158, 255, 0.1);
+        }
+
+
+        /* 右侧结果区域 */
+
+        #outputIp {
+
+            background: #f8fafc;
+
+        }
+
+
+        /* =========================
+           按钮区域
+        ========================= */
+
+        .buttons {
+
+            display: flex;
+
+            justify-content: center;
+
+            gap: 15px;
+
+            margin-top: 25px;
+        }
+
+
+        /* =========================
+           按钮
+        ========================= */
+
+        button {
+
+            border: none;
+
+            padding: 12px 32px;
+
+            border-radius: 8px;
+
+            font-size: 15px;
+
+            font-family:
+                "Microsoft YaHei",
+                Arial,
+                sans-serif;
+
+            cursor: pointer;
+
+            transition:
+                background 0.2s,
+                transform 0.1s;
+        }
+
+
+        button:hover {
+
+            transform: translateY(-1px);
+
+        }
+
+
+        /* =========================
+           复制按钮
+        ========================= */
+
+        .copy-btn {
+
+            background: #67c23a;
+
+            color: #ffffff;
+        }
+
+
+        .copy-btn:hover {
+
+            background: #529b2e;
+
+        }
+
+
+        /* =========================
+           复制成功
+        ========================= */
+
+        .copy-btn.success {
+
+            background: #e6a23c;
+
+            color: #ffffff;
+
+        }
+
+
+        /* =========================
+           清空按钮
+        ========================= */
+
+        .clear-btn {
+
+            background: #909399;
+
+            color: #ffffff;
+
+        }
+
+
+        .clear-btn:hover {
+
+            background: #73767a;
+
+        }
+
+
+        /* =========================
+           手机适配
+        ========================= */
+
+        @media (max-width: 768px) {
+
+            .content {
+
+                flex-direction: column;
+
+            }
+
+            textarea {
+
+                height: 300px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+    <!-- =========================
+         左右区域
+    ========================= -->
+
+    <div class="content">
+
+
+        <!-- =====================
+             左侧原始内容
+        ====================== -->
+
+        <div class="panel">
+
+
+            <div class="panel-header">
+
+                <h2>
+                    原始 IP
+                </h2>
+
+
+                <span
+                    class="count"
+                    id="inputCount"
+                >
+                    共 0 个 IP
+                </span>
+
+            </div>
+
+
+            <textarea
+                id="inputIp"
+            ></textarea>
+
+
+        </div>
+
+
+
+        <!-- =====================
+             右侧格式化结果
+        ====================== -->
+
+        <div class="panel">
+
+
+            <div class="panel-header">
+
+                <h2>
+                    逗号分割 IP
+                </h2>
+
+
+                <span
+                    class="count"
+                    id="outputCount"
+                >
+                    共 0 个 IP
+                </span>
+
+            </div>
+
+
+            <textarea
+                id="outputIp"
+                readonly
+            ></textarea>
+
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- =========================
+         按钮
+    ========================= -->
+
+    <div class="buttons">
+
+
+        <button
+            class="copy-btn"
+            id="copyButton"
+            onclick="copyResult()"
+        >
+            复制结果
+        </button>
+
+
+        <button
+            class="clear-btn"
+            onclick="clearAll()"
+        >
+            清空内容
+        </button>
+
+
+    </div>
+
+
+</div>
+
+
+
+<script>
+
+
+    /* ==========================================
+       判断 IPv4 是否有效
+    ========================================== */
+
+    function isValidIp(ip) {
+
+        const parts =
+            ip.split(".");
+
+
+        if (parts.length !== 4) {
+
+            return false;
+
+        }
+
+
+        for (const part of parts) {
+
+
+            if (!/^\d+$/.test(part)) {
+
+                return false;
+
+            }
+
+
+            const number =
+                Number(part);
+
+
+            if (
+                number < 0 ||
+                number > 255
+            ) {
+
+                return false;
+
+            }
+
+        }
+
+
+        return true;
+
+    }
+
+
+
+    /* ==========================================
+       自动提取 IP
+    ========================================== */
+
+    function formatIp() {
+
+
+        const input =
+            document
+                .getElementById("inputIp")
+                .value;
+
+
+        /*
+        匹配 IPv4
+
+        例如：
+
+        124.174.28.13
+        124.174.8.80
+        115.191.72.229
+        */
+
+        const ipRegex =
+            /\b\d{1,3}(?:\.\d{1,3}){3}\b/g;
+
+
+        const matches =
+            input.match(ipRegex) || [];
+
+
+        /*
+        ------------------------------------------
+        左侧数量
+        ------------------------------------------
+        */
+
+        const validIps = [];
+
+
+        for (const ip of matches) {
+
+            if (isValidIp(ip)) {
+
+                validIps.push(ip);
+
+            }
+
+        }
+
+
+        document
+            .getElementById("inputCount")
+            .innerText =
+            "共 " +
+            validIps.length +
+            " 个 IP";
+
+
+        /*
+        ------------------------------------------
+        右侧自动去重
+        ------------------------------------------
+        */
+
+        const ipList =
+            [...new Set(validIps)];
+
+
+        /*
+        ------------------------------------------
+        逗号分割
+        ------------------------------------------
+        */
+
+        document
+            .getElementById("outputIp")
+            .value =
+            ipList.join(",");
+
+
+        /*
+        ------------------------------------------
+        右侧数量
+        ------------------------------------------
+        */
+
+        document
+            .getElementById("outputCount")
+            .innerText =
+            "共 " +
+            ipList.length +
+            " 个 IP";
+
+    }
+
+
+
+    /* ==========================================
+       输入内容变化
+       自动处理
+    ========================================== */
+
+    document
+        .getElementById("inputIp")
+        .addEventListener(
+            "input",
+            function () {
+
+                formatIp();
+
+            }
+        );
+
+
+
+    /* ==========================================
+       复制结果
+    ========================================== */
+
+    function copyResult() {
+
+
+        const output =
+            document
+                .getElementById("outputIp");
+
+
+        const text =
+            output.value.trim();
+
+
+        /*
+        没有 IP 不执行
+        */
+
+        if (!text) {
+
+            return;
+
+        }
+
+
+        const button =
+            document
+                .getElementById("copyButton");
+
+
+        /*
+        ------------------------------------------
+        复制成功
+        ------------------------------------------
+        */
+
+        function copySuccess() {
+
+
+            /*
+            变黄色
+            */
+
+            button
+                .classList
+                .add("success");
+
+
+            /*
+            修改按钮文字
+            */
+
+            button.innerText =
+                "复制成功";
+
+
+            /*
+            2秒恢复
+            */
+
+            setTimeout(
+                function () {
+
+                    button
+                        .classList
+                        .remove("success");
+
+
+                    button.innerText =
+                        "复制结果";
+
+                },
+                2000
+            );
+
+        }
+
+
+        /*
+        ------------------------------------------
+        兼容复制
+        ------------------------------------------
+        */
+
+        function fallbackCopy() {
+
+
+            output
+                .removeAttribute(
+                    "readonly"
+                );
+
+
+            output.select();
+
+
+            output.setSelectionRange(
+                0,
+                999999
+            );
+
+
+            try {
+
+                document.execCommand(
+                    "copy"
+                );
+
+
+                copySuccess();
+
+            } catch (error) {
+
+                console.log(
+                    "复制失败",
+                    error
+                );
+
+            }
+
+
+            output.setAttribute(
+                "readonly",
+                true
+            );
+
+        }
+
+
+        /*
+        ------------------------------------------
+        Clipboard API
+        ------------------------------------------
+        */
+
+        if (
+            navigator.clipboard &&
+            navigator.clipboard.writeText
+        ) {
+
+
+            navigator
+                .clipboard
+                .writeText(text)
+                .then(
+                    function () {
+
+                        copySuccess();
+
+                    }
+                )
+                .catch(
+                    function () {
+
+                        fallbackCopy();
+
+                    }
+                );
+
+
+        } else {
+
+
+            fallbackCopy();
+
+        }
+
+    }
+
+
+
+    /* ==========================================
+       清空
+    ========================================== */
+
+    function clearAll() {
+
+
+        /*
+        清空左侧
+        */
+
+        document
+            .getElementById("inputIp")
+            .value =
+            "";
+
+
+        /*
+        清空右侧
+        */
+
+        document
+            .getElementById("outputIp")
+            .value =
+            "";
+
+
+        /*
+        左侧数量
+        */
+
+        document
+            .getElementById("inputCount")
+            .innerText =
+            "共 0 个 IP";
+
+
+        /*
+        右侧数量
+        */
+
+        document
+            .getElementById("outputCount")
+            .innerText =
+            "共 0 个 IP";
+
+
+        /*
+        恢复复制按钮
+        */
+
+        const button =
+            document
+                .getElementById("copyButton");
+
+
+        button
+            .classList
+            .remove("success");
+
+
+        button.innerText =
+            "复制结果";
+
+
+        /*
+        光标回到左侧
+        */
+
+        document
+            .getElementById("inputIp")
+            .focus();
+
+    }
+
+</script>
+
+
+</body>
+
+</html>
